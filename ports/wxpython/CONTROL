@@ -1,0 +1,6 @@
+Source: wxpython
+Version: 3.x.x
+Homepage: https://github.com/wxWidgets/phoenix
+Description: Python library that allows creating wxWidget interfaces from python
+Build-Depends: wxwidgets, python3
+Supports: !uwp
