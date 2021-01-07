@@ -43,7 +43,7 @@ vcpkg_configure_cmake(
 
 vcpkg_install_cmake()
 
-file(INSTALL ${SOURCE_PATH}/wx/ DESTINATION ${CURRENT_PACKAGES_DIR}/share/python3/Lib/site-packages/wx/)
+file(INSTALL ${SOURCE_PATH}/wx/ DESTINATION ${CURRENT_PACKAGES_DIR}/tools/python3/Lib/site-packages/wx/)
 file(INSTALL ${SOURCE_PATH}/wx/include/wxPython/ DESTINATION ${CURRENT_PACKAGES_DIR}/include/wxPython/)
 
 # Per https://www.wxpython.org/pages/license/, using wxWindows Library License, no license in the source repo
