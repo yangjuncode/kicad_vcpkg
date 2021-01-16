@@ -96,12 +96,17 @@ function(build_wxp_pyd lib_name link_libs_extra glob)
 	#ensure at least a empty cpp file exists for the lib, even with CONFIGURE_DEPENDS we need a first time glob to work 
 	file(TOUCH ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}.cpp)
 
+	file(COPY ${WXPYTHON_SRC_DIR}/wxc.rc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/wxc.rc ${CMAKE_CURRENT_BINARY_DIR}/_${lib_name}.rc)
+
     if(${glob})
         file(GLOB SRCS CONFIGURE_DEPENDS ${glob} )
     else()
         file(GLOB SRCS CONFIGURE_DEPENDS ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}*.cpp )
     endif()
-    add_library( ${lib_name} SHARED ${SRCS} )
+	
+	
+    add_library( ${lib_name} SHARED ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/_${lib_name}.rc )
     target_include_directories( ${lib_name} PUBLIC ${WXPYTHON_SIP_DIR}/siplib ${WXPYTHON_SRC_DIR} ${WXPYTHON_WXP_INCLUDE_DIR} ${Python3_INCLUDE_DIRS} ${wxWidgets_INCLUDE_DIRS} )
     add_dependencies( ${lib_name} siplib sipgen dox )
     target_link_libraries( ${lib_name}
