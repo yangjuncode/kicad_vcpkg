@@ -15,11 +15,11 @@ set(WXPYTHON_WXP_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/wx/include)
 set(WXPYTHON_OUT_DIR ${PROJECT_SOURCE_DIR}/wx)
 
 ## Create __version__.py
-set(VERSION_STRING "foo")
 set(VERSION_MAJOR 4)
 set(VERSION_MINOR 1)
 set(VERSION_RELEASE 0)
-set(VERSION_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+set(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_RELEASE}")
+string(TOLOWER ${CMAKE_BUILD_TYPE} VERSION_BUILD_TYPE)
 configure_file( "${PROJECT_SOURCE_DIR}/cmake/__version__.py.in" "${WXPYTHON_OUT_DIR}/__version__.py" @ONLY )
 
 
@@ -140,3 +140,7 @@ build_wxp_pyd(stc "core" "")
 build_wxp_pyd(webkit "core" "")
 build_wxp_pyd(xml "core" "")
 build_wxp_pyd(xrc "core" "")
+
+
+install(FILES ${WXPYTHON_SRC_DIR}/__init__.py
+			DESTINATION ${WXPYTHON_OUT_DIR})
