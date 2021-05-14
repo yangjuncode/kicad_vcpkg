@@ -1,0 +1,25 @@
+From 14a9a4c2951873b80ffdd97f8c12018e218b9016 Mon Sep 17 00:00:00 2001
+From: Marek Roszko <mark.roszko@gmail.com>
+Date: Thu, 13 May 2021 07:04:13 -0400
+Subject: [PATCH] Disable webview GetVersionInfo
+
+---
+ etg/webview.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/etg/webview.py b/etg/webview.py
+index d816a3c0..212eb6cc 100644
+--- a/etg/webview.py
++++ b/etg/webview.py
+@@ -252,6 +252,8 @@ def run():
+     c = module.find('wxWebViewHistoryItem')
+     tools.addAutoProperties(c)
+ 
++    c = module.find('wxWebViewFactory')
++    c.find('GetVersionInfo').ignore()
+ 
+     for name in [ 'wxWebViewHandler',
+                   'wxWebViewArchiveHandler',
+-- 
+2.28.0.windows.1
+

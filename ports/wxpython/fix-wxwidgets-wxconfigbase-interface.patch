@@ -1,0 +1,24 @@
+From a50a37c962643d4a038b59ebc2e8495a72ca9ab0 Mon Sep 17 00:00:00 2001
+From: Ian McInerney <Ian.S.McInerney@ieee.org>
+Date: Thu, 13 May 2021 03:04:37 +0100
+Subject: [PATCH] Readd accidentally deleted argument in wxConfig interface
+
+This missing argument was removed in 0c837e5310998e4d57bc1f37cdfc170eb3dad49e
+and causes the doxygen docs for wxConfigBase to be incorrect and miss
+a lot of functions.
+---
+ interface/wx/config.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/interface/wx/config.h b/interface/wx/config.h
+index 4c3f71dae5dd..ae60b506b76b 100644
+--- a/interface/wx/config.h
++++ b/interface/wx/config.h
+@@ -571,6 +571,7 @@ class wxConfigBase : public wxObject
+         @endWxPerlOnly
+     */
+     bool Read(const wxString& key, wxLongLong_t* ll,
++              wxLongLong_t defaultVal) const;
+     /**
+         Reads a size_t value, returning @true if the value was found.
+         If the value was not found, @a value is not changed.
