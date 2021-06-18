@@ -40,27 +40,6 @@ find_package( Python3 COMPONENTS Interpreter Development REQUIRED )
 
 find_package( wxWidgets COMPONENTS gl aui adv html core net base propgrid media xml ribbon richtext webview webkit xrc stc REQUIRED )
 
-add_custom_target(
-    pyrequirements
-    COMMAND ${Python3_EXECUTABLE} -m ensurepip && ${Python3_EXECUTABLE} -m pip install -r ${PROJECT_SOURCE_DIR}/requirements.txt
-)
-
-# wxPython uses doxygen xml to generate the later sip modules
-add_custom_target(
-    dox ALL
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND ${Python3_EXECUTABLE} ./build.py dox
-)
-
-add_dependencies( dox pyrequirements )
-
-# Run the sip generation, delete files first or they don't get updated!
-add_custom_target(
-    sipgen ALL
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND ${Python3_EXECUTABLE} ./build.py etg --nodoc sip
-)
-add_dependencies( sipgen pyrequirements dox )
 
 
 set(SIPLIB_SRCS 
@@ -89,36 +68,28 @@ set_target_properties( siplib PROPERTIES
     OUTPUT_NAME siplib 
     SUFFIX      ${OUTPUT_PREFIX}
     )
-add_dependencies( siplib sipgen )
 install(TARGETS siplib RUNTIME DESTINATION ${WXPYTHON_OUT_DIR})
 
 function(build_wxp_pyd lib_name glob)
-    #ensure at least a empty cpp file exists for the lib, even with CONFIGURE_DEPENDS we need a first time glob to work 
-    file(TOUCH ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}.cpp)
-
     file(COPY ${WXPYTHON_SRC_DIR}/wxc.rc DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/wxc.rc ${CMAKE_CURRENT_BINARY_DIR}/_${lib_name}.rc)
 
     if(NOT ${glob} STREQUAL "")
-        file(GLOB SRCS CONFIGURE_DEPENDS ${glob} )
+        file(GLOB SRCS ${glob} )
     else()
-        file(GLOB SRCS CONFIGURE_DEPENDS ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}*.cpp )
+        file(GLOB SRCS ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}*.cpp )
     endif()
-    
     
     add_library( ${lib_name} SHARED ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/_${lib_name}.rc )
     target_include_directories( ${lib_name} PUBLIC ${WXPYTHON_SIP_DIR}/siplib ${WXPYTHON_SRC_DIR} ${WXPYTHON_WXP_INCLUDE_DIR} ${Python3_INCLUDE_DIRS} ${wxWidgets_INCLUDE_DIRS} )
-    add_dependencies( ${lib_name} siplib sipgen dox )
+    add_dependencies( ${lib_name} siplib )
+
+
     target_link_libraries( ${lib_name}
                             siplib 
                             ${Python3_LIBRARIES} 
                             ${wxWidgets_LIBRARIES})
                             
-                            
-    if(NOT ${lib_name} STREQUAL "core")
-        target_link_libraries( ${lib_name}
-                                core)
-    endif()
 
     set_target_properties( ${lib_name} PROPERTIES 
         OUTPUT_NAME _${lib_name}

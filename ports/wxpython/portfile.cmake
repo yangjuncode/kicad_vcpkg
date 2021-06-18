@@ -43,15 +43,40 @@ if(CMAKE_HOST_WIN32)
 	set(ENV{PYTHONPATH} "${PYTHON_ROOT}/DLLs;${PYTHON_ROOT}/Lib")
 endif()
 
+
+find_package( Python3 COMPONENTS Interpreter REQUIRED )
+
+vcpkg_execute_build_process(
+    COMMAND ${Python3_EXECUTABLE} -m ensurepip
+    WORKING_DIRECTORY "${SOURCE_PATH}"
+    LOGNAME "prepare-ensurepip-${RELEASE_TRIPLET}"
+)
+
+vcpkg_execute_build_process(
+    COMMAND ${Python3_EXECUTABLE} -m pip install -r ${SOURCE_PATH}/requirements.txt
+    WORKING_DIRECTORY "${SOURCE_PATH}"
+    LOGNAME "prepare-requirements-${RELEASE_TRIPLET}"
+)
+
+vcpkg_execute_build_process(
+    COMMAND ${Python3_EXECUTABLE} ./build.py dox
+    WORKING_DIRECTORY "${SOURCE_PATH}"
+    LOGNAME "prepare-dox-${RELEASE_TRIPLET}"
+)
+
+vcpkg_execute_build_process(
+    COMMAND ${Python3_EXECUTABLE} ./build.py etg --nodoc sip
+    WORKING_DIRECTORY "${SOURCE_PATH}"
+    LOGNAME "prepare-etg-${RELEASE_TRIPLET}"
+)
+
+
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
     PREFER_NINJA
-	DISABLE_PARALLEL_CONFIGURE
 )
 
-vcpkg_install_cmake(
-	DISABLE_PARALLEL
-	)
+vcpkg_install_cmake()
 
 file(INSTALL ${SOURCE_PATH}/wx/ DESTINATION ${CURRENT_PACKAGES_DIR}/tools/python3/Lib/site-packages/wx/)
 file(INSTALL ${SOURCE_PATH}/wx/include/wxPython/ DESTINATION ${CURRENT_PACKAGES_DIR}/include/wxPython/)
