@@ -105,20 +105,16 @@ function(build_wxp_pyd lib_name glob)
         file(GLOB SRCS CONFIGURE_DEPENDS ${WXPYTHON_SIP_DIR}/cpp/sip_${lib_name}*.cpp )
     endif()
     
-    
     add_library( ${lib_name} SHARED ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/_${lib_name}.rc )
     target_include_directories( ${lib_name} PUBLIC ${WXPYTHON_SIP_DIR}/siplib ${WXPYTHON_SRC_DIR} ${WXPYTHON_WXP_INCLUDE_DIR} ${Python3_INCLUDE_DIRS} ${wxWidgets_INCLUDE_DIRS} )
     add_dependencies( ${lib_name} siplib sipgen dox )
+
+
     target_link_libraries( ${lib_name}
                             siplib 
                             ${Python3_LIBRARIES} 
                             ${wxWidgets_LIBRARIES})
                             
-                            
-    if(NOT ${lib_name} STREQUAL "core")
-        target_link_libraries( ${lib_name}
-                                core)
-    endif()
 
     set_target_properties( ${lib_name} PROPERTIES 
         OUTPUT_NAME _${lib_name}
