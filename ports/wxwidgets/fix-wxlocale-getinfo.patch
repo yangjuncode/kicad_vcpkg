@@ -1,0 +1,46 @@
+From c9e2143a7a97ef82bcc20e8c6956663523a62adf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Va=CC=81clav=20Slavi=CC=81k?= <vaclav@slavik.io>
+Date: Fri, 16 Apr 2021 19:53:04 +0200
+Subject: [PATCH] Fix wxLocale::GetInfo() for unknown Windows locales
+
+wxWidgets may be unaware of the locale being used and may be unable to
+get correct information from its languages database. For example, en-AT
+locale, supported by Windows 10 and using "," for decimal point, would
+be interpreted as en-US by wx, and return "." here.
+
+The other situation, when wx supports a locale that the OS doesn't,
+shouldn't make a difference here because in that case, CRT wouldn't
+support the locale either and CRT formatting functions wouldn't be set
+to use it.
+
+See also somewhat related 9fc78c81679274d08ae4c956e652df7a4bfec3e5.
+---
+ src/common/intl.cpp | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/src/common/intl.cpp b/src/common/intl.cpp
+index 0b0d8798f4b5..e56425b61948 100644
+--- a/src/common/intl.cpp
++++ b/src/common/intl.cpp
+@@ -1688,10 +1688,7 @@ GetInfoFromLCID(LCID lcid,
+ /* static */
+ wxString wxLocale::GetInfo(wxLocaleInfo index, wxLocaleCategory cat)
+ {
+-    const wxLanguageInfo * const
+-        info = wxGetLocale() ? GetLanguageInfo(wxGetLocale()->GetLanguage())
+-                             : NULL;
+-    if ( !info )
++    if ( !wxGetLocale() )
+     {
+         // wxSetLocale() hadn't been called yet of failed, hence CRT must be
+         // using "C" locale -- but check it to detect bugs that would happen if
+@@ -1734,7 +1731,8 @@ wxString wxLocale::GetInfo(wxLocaleInfo index, wxLocaleCategory cat)
+         }
+     }
+ 
+-    return GetInfoFromLCID(info->GetLCID(), index, cat);
++    // wxSetLocale() succeeded and so thread locale was set together with CRT one.
++    return GetInfoFromLCID(::GetThreadLocale(), index, cat);
+ }
+ 
+ /* static */

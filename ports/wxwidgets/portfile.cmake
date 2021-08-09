@@ -9,6 +9,7 @@ vcpkg_from_github(
     PATCHES
         disable-platform-lib-dir.patch
         fix-build.patch
+		fix-wxlocale-getinfo.patch
 )
 
 set(OPTIONS)
